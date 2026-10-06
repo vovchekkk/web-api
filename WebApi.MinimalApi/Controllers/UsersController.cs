@@ -19,8 +19,27 @@ public class UsersController : Controller
     [HttpGet("{userId}")]
     public ActionResult<UserDto> GetUserById([FromRoute] Guid userId)
     {
-        var user = userRepository.userId;
-        return Ok(user);
+        var user = userRepository.FindById(userId); // $"{src.LastName} {src.FirstName}"
+        if (user == null)
+            return NotFound();
+        var fullName = $"{user.LastName} {user.FirstName}";
+
+        var userDto = new UserDto
+        {
+            Id = userId,
+            Login = user.Login,
+            FullName = fullName,
+            GamesPlayed = user.GamesPlayed,
+            CurrentGameId = user.CurrentGameId
+        };
+
+        // userDto.Id = userId;
+        // userDto.Login = user.Login;
+        // userDto.FullName = fullName;
+        // userDto.GamesPlayed = user.GamesPlayed;
+        // userDto.CurrentGameId = user.CurrentGameId;
+
+        return Ok(userDto);
     }
 
     [HttpPost]
