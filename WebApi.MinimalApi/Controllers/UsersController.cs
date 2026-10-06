@@ -17,9 +17,10 @@ public class UsersController : Controller
     }
 
     [HttpGet("{userId}")]
+    [Produces("application/json", "application/xml")]
     public ActionResult<UserDto> GetUserById([FromRoute] Guid userId)
     {
-        var user = userRepository.FindById(userId); // $"{src.LastName} {src.FirstName}"
+        var user = userRepository.FindById(userId);
         if (user == null)
             return NotFound();
         var fullName = $"{user.LastName} {user.FirstName}";
