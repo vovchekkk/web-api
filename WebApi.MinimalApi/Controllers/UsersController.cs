@@ -20,6 +20,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("{userId}")]
+    [HttpHead("{userId}")]
     [Produces("application/json", "application/xml")]
     public ActionResult<UserDto> GetUserById([FromRoute] Guid userId)
     {
@@ -36,6 +37,12 @@ public class UsersController : Controller
         //     GamesPlayed = user.GamesPlayed,
         //     CurrentGameId = user.CurrentGameId
         // };
+
+        if (HttpMethods.IsHead(Request.Method))
+        {
+            Response.ContentType = "application/json; charset=utf-8";
+            return Ok();
+        }
         
         var userDto = mapper.Map<UserDto>(user);
         userDto.Id = userId;
