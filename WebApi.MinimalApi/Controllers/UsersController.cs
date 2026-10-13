@@ -121,6 +121,21 @@ public class UsersController : Controller
 
         return NoContent();
     }
+
+    [HttpDelete("{userId}")]
+    public IActionResult DeleteUser(string userId)
+    {
+        if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var parsedId))
+            return NotFound();
+
+        var userEntity = userRepository.FindById(parsedId);
+        if (userEntity == null)
+            return NotFound();
+
+        userRepository.Delete(parsedId);
+
+        return NoContent();
+    }
     
     [HttpGet(Name = nameof(GetUsers))]
     public ActionResult<IEnumerable<UserDto>> GetUsers(
