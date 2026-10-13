@@ -25,16 +25,37 @@ public class UsersController : Controller
         this.linkGenerator = linkGenerator;
     }
 
-    [HttpGet("{userId}", Name = nameof(GetUserById))]
+    [HttpGet("{userId}")]
+    [HttpHead("{userId}")]
     [Produces("application/json", "application/xml")]
     public ActionResult<UserDto> GetUserById([FromRoute] Guid userId)
     {
-        var userEntity = userRepository.FindById(userId);
-        if (userEntity == null)
+        var user = userRepository.FindById(userId);
+        if (user == null)
             return NotFound();
+        //var fullName = $"{user.LastName} {user.FirstName}";
 
-        return Ok(mapper.Map<UserDto>(userEntity));
+        // var userDto = new UserDto
+        // {
+        //     Id = userId,
+        //     Login = user.Login,
+        //     FullName = fullName,
+        //     GamesPlayed = user.GamesPlayed,
+        //     CurrentGameId = user.CurrentGameId
+        // };
+
+        if (HttpMethods.IsHead(Request.Method))
+        {
+            Response.ContentType = "application/json; charset=utf-8";
+            return Ok();
+        }
+        
+        var userDto = mapper.Map<UserDto>(user);
+        userDto.Id = userId;
+
+        return Ok(userDto);
     }
+
 
     [HttpPost]
     public IActionResult CreateUser([FromBody] CreateUserDto? user)
