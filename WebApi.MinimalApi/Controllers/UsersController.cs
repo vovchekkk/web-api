@@ -25,7 +25,7 @@ public class UsersController : Controller
         this.linkGenerator = linkGenerator;
     }
 
-    [HttpGet("{userId}")]
+    [HttpGet("{userId}", Name = nameof(GetUserById))]
     [HttpHead("{userId}")]
     [Produces("application/json", "application/xml")]
     public ActionResult<UserDto> GetUserById([FromRoute] Guid userId)
@@ -33,16 +33,6 @@ public class UsersController : Controller
         var user = userRepository.FindById(userId);
         if (user == null)
             return NotFound();
-        //var fullName = $"{user.LastName} {user.FirstName}";
-
-        // var userDto = new UserDto
-        // {
-        //     Id = userId,
-        //     Login = user.Login,
-        //     FullName = fullName,
-        //     GamesPlayed = user.GamesPlayed,
-        //     CurrentGameId = user.CurrentGameId
-        // };
 
         if (HttpMethods.IsHead(Request.Method))
         {
