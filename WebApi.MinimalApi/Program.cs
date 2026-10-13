@@ -14,6 +14,11 @@ builder.Services.AddControllers()
         options.SuppressMapClientErrors = true;
     });
 builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.CreateMap<UserEntity, WebApi.MinimalApi.Models.UserDto>()
+        .ForMember(d => d.FullName, opt => opt.MapFrom(s => $"{s.LastName} {s.FirstName}"));
+}, Array.Empty<System.Reflection.Assembly>());
 
 builder.Services.AddAutoMapper(cfg =>
 {
