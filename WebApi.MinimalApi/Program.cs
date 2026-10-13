@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -13,20 +14,15 @@ builder.Services.AddControllers()
         options.SuppressModelStateInvalidFilter = true;
         options.SuppressMapClientErrors = true;
     });
-builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.CreateMap<UserEntity, WebApi.MinimalApi.Models.UserDto>()
-        .ForMember(d => d.FullName, opt => opt.MapFrom(s => $"{s.LastName} {s.FirstName}"));
-}, Array.Empty<System.Reflection.Assembly>());
-
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.CreateMap<UserEntity, UserDto>()
         .ForMember(dest => dest.FullName, 
             opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
     cfg.CreateMap<CreateUserDto, UserEntity>();
-}, new System.Reflection.Assembly[0]);
+    cfg.CreateMap<UserEntity, UpdateUserDto>();
+    cfg.CreateMap<UpdateUserDto, UserEntity>();
+}, Array.Empty<Assembly>());
 
 builder.Services.AddControllers(options =>
     {

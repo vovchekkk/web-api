@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using WebApi.MinimalApi.Domain;
@@ -75,7 +76,7 @@ public class UsersController : Controller
         
         return CreatedAtRoute(
             nameof(GetUserById),
-            new { userId = createdUserEntity.Id },
+            new { userId = userDto.Id },
             userDto);
     }
 
@@ -151,6 +152,43 @@ public class UsersController : Controller
 
         userRepository.Delete(parsedId);
 
+        return NoContent();
+    }
+
+    [HttpPatch("{id}")]
+    [Produces("application/json", "application/xml")]
+    public IActionResult PartiallyUpdateUser(
+        string id,
+        [FromBody] JsonPatchDocument<UpdateUserDto>? patchDoc)
+    {
+        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out var parsedId))
+            return NotFound();
+        
+        if (patchDoc == null)
+            return BadRequest();
+
+        var userEntity = userRepository.FindById(parsedId);
+        if (userEntity == null)
+            return NotFound();
+        
+        var userToUpdate = mapper.Map<UpdateUserDto>(userEntity);
+        patchDoc.ApplyTo(userToUpdate, ModelState);
+        
+        TryValidateModel(userToUpdate);
+        
+        if (!string.IsNullOrEmpty(userToUpdate.Login) &&
+            !userToUpdate.Login.All(char.IsLetterOrDigit))
+        {
+            ModelState.AddModelError("login",
+                "Login must contain only letters and digits.");
+        }
+        
+        if (!ModelState.IsValid)
+            return UnprocessableEntity(ModelState);
+        
+        mapper.Map(userToUpdate, userEntity);
+        userRepository.Update(userEntity);
+        
         return NoContent();
     }
     
