@@ -56,6 +56,12 @@ public class UsersController : Controller
         return Ok(userDto);
     }
 
+    [HttpOptions]
+    public IActionResult GetUsersOptions()
+    {
+        Response.Headers.Add("Allow", "POST, GET, OPTIONS");
+        return Ok();
+    }
 
     [HttpPost]
     public IActionResult CreateUser([FromBody] CreateUserDto? user)
